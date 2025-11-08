@@ -1,4 +1,5 @@
 import StoryAPI from '../data/story-api';
+import NotificationAPI from '../data/notification-api';
 import Footer from '../components/footer';
 
 class HomePage {
@@ -13,6 +14,10 @@ class HomePage {
       return;
     }
 
+    const isSubscribed = await NotificationAPI.isSubscribed();
+    const notificationIcon = isSubscribed ? 'fa-bell' : 'fa-bell-slash';
+    const notificationTitle = isSubscribed ? 'Disable Notifications' : 'Enable Notifications';
+
     return `
       <div class="container">
         <h1 class="page-title">Story List</h1>
@@ -24,6 +29,9 @@ class HomePage {
             </select>
           </div>
           <div class="header-actions">
+            <button id="notification-toggle" class="notification-button" title="${notificationTitle}" aria-label="${notificationTitle}">
+              <i class="fas ${notificationIcon}"></i>
+            </button>
             <a href="#/add" class="add-button" role="button">+ Add Story</a>
             <button class="logout-button" id="logoutButton">
               <i class="fas fa-sign-out-alt"></i> Logout
@@ -54,6 +62,9 @@ class HomePage {
       localStorage.removeItem('token');
       window.location.hash = '#/login';
     });
+
+    // Setup notification toggle button
+    this.#setupNotificationButton();
 
     // Force map to update its size
     setTimeout(() => {
@@ -227,6 +238,44 @@ class HomePage {
         this.#map.setView([-2.548926, 118.014863], 5);
       }
     });
+  }
+
+  #setupNotificationButton() {
+    const notificationBtn = document.getElementById('notification-toggle');
+    if (!notificationBtn) return;
+
+    notificationBtn.addEventListener('click', async () => {
+      try {
+        const isSubscribed = await NotificationAPI.isSubscribed();
+
+        if (isSubscribed) {
+          // Unsubscribe
+          await NotificationAPI.unsubscribe();
+          alert('Push notification telah dimatikan');
+        } else {
+          // Subscribe
+          await NotificationAPI.subscribe();
+          alert('Push notification telah diaktifkan');
+        }
+
+        // Update UI
+        this.#updateNotificationButton(notificationBtn);
+      } catch (error) {
+        console.error('Error toggling notification:', error);
+        alert(`Error: ${error.message}`);
+      }
+    });
+  }
+
+  async #updateNotificationButton(btn) {
+    const isSubscribed = await NotificationAPI.isSubscribed();
+    const icon = btn.querySelector('i');
+    const newIcon = isSubscribed ? 'fa-bell' : 'fa-bell-slash';
+    const newTitle = isSubscribed ? 'Disable Notifications' : 'Enable Notifications';
+
+    icon.className = `fas ${newIcon}`;
+    btn.title = newTitle;
+    btn.setAttribute('aria-label', newTitle);
   }
 }
 

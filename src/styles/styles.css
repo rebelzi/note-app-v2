@@ -547,6 +547,7 @@ button[type="submit"]:disabled {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+  gap: 1rem;
 }
 
 .copyright {
@@ -618,6 +619,29 @@ button[type="submit"]:disabled {
 
 .logout-button:hover {
   background: #c82333;
+}
+
+.notification-button {
+  padding: 0.75rem 1.5rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+}
+
+.notification-button:hover {
+  background: #218838;
+}
+
+.notification-button:active {
+  transform: scale(0.95);
 }
 
 @media screen and (max-width: 768px) {
