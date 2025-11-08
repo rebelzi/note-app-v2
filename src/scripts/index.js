@@ -3,7 +3,36 @@ import '../styles/styles.css';
 
 import App from './pages/app';
 
-// Register Service Worker untuk push notification
+// PWA Install Prompt Handler
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  console.log('beforeinstallprompt event fired');
+  event.preventDefault();
+  deferredPrompt = event;
+  
+  // Show install prompt - bisa ditampilkan di UI button
+  showInstallPrompt();
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('✅ PWA berhasil diinstall');
+  deferredPrompt = null;
+});
+
+function showInstallPrompt() {
+  // Store for later use - bisa dipanggil dari button di UI
+  window.pwaInstallPrompt = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
+      deferredPrompt = null;
+    }
+  };
+}
+
+// Register Service Worker untuk PWA + Push Notification
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
@@ -31,3 +60,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     await app.renderPage();
   });
 });
+
